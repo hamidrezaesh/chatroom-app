@@ -1,0 +1,165 @@
+/* Container */
+.chatroom {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  background: var(--bg-primary);
+  height: calc(100vh - 4rem);
+}
+
+/* Messages Container */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Individual Message */
+.message {
+  max-width: 60ch;
+  width: auto;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  word-wrap: break-word;
+}
+
+/* current user */
+.message.own {
+  align-self: flex-end;
+  background: var(--accent);
+  color: white;
+}
+
+/* Message username */
+.message strong {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* Message text */
+.message span {
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* Input Area */
+.send-msg {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-top: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* Input Field */
+.send-msg input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 1.5rem;
+  border: 2px solid var(--border);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+}
+
+.send-msg input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.send-msg input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Send Button */
+.send-msg-btn {
+  padding: 0 1.5rem;
+  border-radius: 1.5rem;
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.send-msg-btn:active {
+  transform: scale(0.96);
+}
+
+/* Desktop Hover Effects */
+@media (any-hover: hover) {
+  .send-msg-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  }
+}
+
+/* Scrollbar Styling */
+.messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages::-webkit-scrollbar-track {
+  background: var(--border);
+  border-radius: 10px;
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 10px;
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
+}
+
+small{
+  font-size: 0.65rem;
+  opacity: 80%;
+}
+
+/* Empty state */
+.messages:empty::before {
+  content: "No messages yet. Start the conversation!";
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 2rem;
+  display: block;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .chatroom {
+    height: 100vh;
+    border-radius: 0;
+  }
+  
+  .message {
+    max-width: 85%;
+  }
+  
+  .joined {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  .send-msg {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+  
+  .send-msg-btn {
+    padding: 0 1rem;
+  }
+}
