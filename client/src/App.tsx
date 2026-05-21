@@ -18,7 +18,7 @@ export default function App(){
   const joinChat = () =>{
     if (!username.trim()) return
 
-    const socket = new WebSocket("ws://localhost:8080")
+    const socket = new WebSocket("wss://localhost:8080")
 
     socket.onopen = ()=>{
       const joinMessage = {username, text: "Joined the chat", timestamp: Date.now()}

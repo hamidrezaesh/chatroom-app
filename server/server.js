@@ -2,6 +2,8 @@ import { WebSocketServer } from "ws"
 import express from "express"
 import path from "path"
 import { fileURLToPath } from "url"
+import createDOMPurify from 'dompurify'
+import { JSDOM } from 'jsdom'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -9,21 +11,24 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const PORT = 8080
 
-app.use(express.static(path.join(__dirname, "../client/dist")))
+const window = new JSDOM("").window
+const DOMPurify = createDOMPurify(window)
 
+app.use(express.static(path.join(__dirname, "../client/dist")))
 
 const server = app.listen(PORT, ()=>{
     console.log("HTTP server running on port 8080")
 })
 
-const ws = new WebSocketServer({server})
+const wss = new WebSocketServer({server})
 
+const messagesCount = new Map()
 const messageHistory = []
 const MAX_HISTORY = 100
 
 console.log("Server Started on port 8080...")
 
-ws.on("connection", (socket) => {
+wss.on("connection", (socket) => {
     console.log("Client joined")
 
     socket.send(JSON.stringify({
@@ -32,8 +37,58 @@ ws.on("connection", (socket) => {
     }))
 
     socket.on("message", (data) => {
-        messageHistory.push(JSON.parse(data.toString()))
-        
+        const message = JSON.parse(data.toString())
+
+        const cleanText = DOMPurify.sanitize(message.text, {
+            ALLOWED_TAGS: [],
+            ALLOWED_ATTR: []
+        })
+
+        if (!cleanText.trim()) return
+
+        const clientId = socket._socket.remoteAddress
+        const now = Date.now()
+
+        let userStats = messagesCount.get(clientId)
+        if (!userStats){
+            userStats = {perSecond: [], perMinute: []}
+            messagesCount.set(clientId, userStats)
+        }
+
+        // clean old entries
+        userStats.perSecond = userStats.perSecond.filter(t => now - t < 1_000)
+        userStats.perMinute = userStats.perMinute.filter(t => now - t < 60_000)
+
+        if (userStats.perSecond.length >= 4){
+            socket.send(JSON.stringify({
+                type: "error",
+                message: "Calm down! Max 4 messages per second"
+            }))
+            return
+        }
+
+
+        if (userStats.perMinute.length >= 60){
+            socket.send(JSON.stringify({
+                type: "error",
+                message: "Rate limit! 60 messsager per minute"
+            }))
+            return
+        }
+
+        userStats.perSecond.push(now)
+        userStats.perMinute.push(now)
+        messagesCount.set(clientId, userStats)
+
+
+        const cleanMessage = {
+            username: message.username,
+            text: cleanText,
+            timestamp: message.timestamp || Date.now()
+        }
+
+        messageHistory.push(cleanMessage)
+
         const remaining = MAX_HISTORY - messageHistory.length
         if (remaining === 25) console.log("NOTICE: Only 25 messages left")
         if (remaining === 10) console.log("WARNING: Only 10 messsages left")
@@ -41,14 +96,14 @@ ws.on("connection", (socket) => {
         if (messageHistory.length > MAX_HISTORY){
             messageHistory.shift()
             console.log("NOTICE: History Reset.")
-        } 
-        
+        }
+
         // Broadcast to all connected clients
-        for (const client of ws.clients) {
+        for (const client of wss.clients) {
             if (client.readyState === 1) {
                 client.send(JSON.stringify({
                     type:"message",
-                    message: JSON.parse(data.toString())
+                    message: cleanMessage
                 }))
                 console.log("Message sent to client")
             }
