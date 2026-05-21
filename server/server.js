@@ -4,6 +4,8 @@ import path from "path"
 import { fileURLToPath } from "url"
 import createDOMPurify from 'dompurify'
 import { JSDOM } from 'jsdom'
+import https from "https"
+import fs from "fs"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -11,12 +13,18 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const PORT = 8080
 
+const privateKey = fs.readFileSync("ssl-certs/key.pem", "utf8")
+const certificate = fs.readFileSync("ssl-certs/cert.pem", "utf8")
+const credentials =  {key: privateKey, cert: certificate}
+
 const window = new JSDOM("").window
 const DOMPurify = createDOMPurify(window)
 
 app.use(express.static(path.join(__dirname, "../client/dist")))
 
-const server = app.listen(PORT, ()=>{
+const server = https.createServer(credentials, app)
+
+server.listen(PORT, ()=>{
     console.log("HTTP server running on port 8080")
 })
 
