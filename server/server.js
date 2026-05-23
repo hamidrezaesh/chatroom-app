@@ -113,7 +113,6 @@ wss.on("connection", (socket) => {
                     type:"message",
                     message: cleanMessage
                 }))
-                console.log("Message sent to client")
             }
         }
     })
