@@ -31,8 +31,10 @@ export default function App(){
 
         if (data.type === "history"){
           setMessages(data.messages)
-        }else{
+        }else if(data.type === "message"){
           setMessages(prev => [...prev, data.message])
+        }else{
+          alert(data.message)
         }
       }catch(err){
         console.log("ERROR WITH MESSAGES: ", err)
