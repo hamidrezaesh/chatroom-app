@@ -30,3 +30,35 @@ A secure, real-time chat application built with React, TypeScript, and WebSocket
 - Node.js
 - npm or yarn
 - Modern web browser
+
+## 🛠️ Setup Guide:
+1. Clone and Install
+```bash
+git clone https://github.com/hamidrezaesh/chatroom-app.git
+cd chatroom-app
+cd server && npm install
+cd ../client && npm install
+```
+
+2. Build and Run
+```bash
+cd client && npm run build
+cd ../server && npm start
+```
+Then open `http://localhost:8080` in browser.
+
+### Development Mode
+```bash
+cd server && npm run dev   # Backend (auto-reload)
+cd client && npm run dev   # Frontend (hot-reload)
+```
+
+### SSL Certificates (For WSS)
+```bash
+cd server
+mkdir ssl-certs
+openssl req -x509 -newkey rsa:4096 -keyout ssl-certs/key.pem -out ssl-certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
+```
+
+# 📄 License
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more details.
